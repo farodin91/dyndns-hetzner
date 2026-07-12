@@ -114,7 +114,7 @@ func ensureRecord(
 		}
 		log.Printf("IP changed from %s to %s", currentIP.Value, publicIP)
 
-		updateRecord(ctx, client, zone, rrsetName, publicIP, ttl)
+		updateRecord(ctx, client, zone, rrsetName, publicIP)
 	} else {
 		createRecord(ctx, client, zone, rrsetName, publicIP, ttl)
 	}
@@ -125,20 +125,19 @@ func updateRecord(
 	client *hcloud.Client,
 	zone *hcloud.Zone,
 	rrsetName, publicIP string,
-	ttl int,
 ) {
-	log.Printf("A record for %s found, updating new RRSet with IP: %s", rrsetName, publicIP)
-	_, resp, err := client.Zone.UpdateRRSet(ctx, &hcloud.ZoneRRSet{
+	log.Printf("A record for %s found, updating RRSet with IP: %s", rrsetName, publicIP)
+	_, resp, err := client.Zone.SetRRSetRecords(ctx, &hcloud.ZoneRRSet{
 		Zone: zone,
 		Name: rrsetName,
 		Type: hcloud.ZoneRRSetTypeA,
-		TTL:  new(ttl),
+	}, hcloud.ZoneRRSetSetRecordsOpts{
 		Records: []hcloud.ZoneRRSetRecord{
 			{
 				Value: publicIP,
 			},
 		},
-	}, hcloud.ZoneRRSetUpdateOpts{})
+	})
 	if err != nil {
 		log.Fatalf("Failed to update RRSet: %v", err)
 	}
