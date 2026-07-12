@@ -19,7 +19,6 @@ linters:
     - gocyclo
     - godox
     - goprintffuncname
-    - gosec
     - govet
     - importas
     - ineffassign

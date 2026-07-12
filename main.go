@@ -26,7 +26,7 @@ func main() {
 		log.Fatal("HETZNER_DNS_API_TOKEN environment variable is required")
 	}
 
-	configPath := os.Getenv("HETZNER_DNS_CONFIG_APTH")
+	configPath := os.Getenv("HETZNER_DNS_CONFIG_PATH")
 	if configPath == "" {
 		configPath = "./config.yaml"
 	}
@@ -89,11 +89,6 @@ func ensureRecord(
 	rrsetName, publicIP string,
 	ttl int,
 ) {
-	// Get the A record RRSet for the root domain
-	if rrsetName == "@" {
-		rrsetName = ""
-	}
-
 	rrset, _, err := client.Zone.GetRRSetByNameAndType(ctx, zone, rrsetName, hcloud.ZoneRRSetTypeA)
 	if err != nil {
 		log.Fatalf("Failed to get RRSet: %v", err)
