@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"time"
 
@@ -58,16 +59,17 @@ func main() {
 		config.TTL = DefaultTTL
 	}
 
-	// Create Hetzner client
 	client := hcloud.NewClient(hcloud.WithToken(apiToken), hcloud.WithApplication("hetzner-dyndns", "1.0"))
 	ctx := context.Background()
 
-	// Get current public IP
 	publicIP, err := getOutboundIP(ctx)
 	if err != nil {
 		log.Fatalf("Failed to get public IP: %v", err)
 	}
 	log.Printf("Current public IP: %s", publicIP)
+	if publicIP.To4() == nil {
+		log.Fatal("Current IPv6 is unsupported")
+	}
 
 	// Get zone by name
 	zone, _, err := client.Zone.GetByName(ctx, config.Zone)
@@ -93,9 +95,12 @@ func ensureRecord(
 	rrsetName, publicIP string,
 	ttl int,
 ) {
-	rrset, _, err := client.Zone.GetRRSetByNameAndType(ctx, zone, rrsetName, hcloud.ZoneRRSetTypeA)
+	rrset, resp, err := client.Zone.GetRRSetByNameAndType(ctx, zone, rrsetName, hcloud.ZoneRRSetTypeA)
 	if err != nil {
 		log.Fatalf("Failed to get RRSet: %v", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("Failed to get RRSet with Status %d", resp.StatusCode)
 	}
 
 	// Check if RRSet exists and has the same IP
@@ -107,7 +112,7 @@ func ensureRecord(
 			log.Println("IP unchanged, no update needed")
 			return
 		}
-		log.Printf("IP changed from %s to %s", currentIP, publicIP)
+		log.Printf("IP changed from %s to %s", currentIP.Value, publicIP)
 
 		updateRecord(ctx, client, zone, rrsetName, publicIP, ttl)
 	} else {
@@ -122,9 +127,8 @@ func updateRecord(
 	rrsetName, publicIP string,
 	ttl int,
 ) {
-	// Update the RRSet
-	log.Printf("A record for %s not found, creating new RRSet with IP: %s", rrsetName, publicIP)
-	_, _, err := client.Zone.UpdateRRSet(ctx, &hcloud.ZoneRRSet{
+	log.Printf("A record for %s found, updating new RRSet with IP: %s", rrsetName, publicIP)
+	_, resp, err := client.Zone.UpdateRRSet(ctx, &hcloud.ZoneRRSet{
 		Zone: zone,
 		Name: rrsetName,
 		Type: hcloud.ZoneRRSetTypeA,
@@ -138,6 +142,9 @@ func updateRecord(
 	if err != nil {
 		log.Fatalf("Failed to update RRSet: %v", err)
 	}
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("Failed to update RRSet with Status %d", resp.StatusCode)
+	}
 	log.Println("Updated A record successfully")
 }
 
@@ -148,9 +155,8 @@ func createRecord(
 	rrsetName, publicIP string,
 	ttl int,
 ) {
-	// RRSet doesn't exist, create it
 	log.Printf("A record for %s not found, creating new RRSet with IP: %s", rrsetName, publicIP)
-	_, _, err := client.Zone.CreateRRSet(ctx, zone, hcloud.ZoneRRSetCreateOpts{
+	_, resp, err := client.Zone.CreateRRSet(ctx, zone, hcloud.ZoneRRSetCreateOpts{
 		Name: rrsetName,
 		Type: hcloud.ZoneRRSetTypeA,
 		TTL:  new(ttl),
@@ -163,10 +169,12 @@ func createRecord(
 	if err != nil {
 		log.Fatalf("Failed to create RRSet: %v", err)
 	}
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("Failed to create RRSet with Status %d", resp.StatusCode)
+	}
 	log.Println("Created A record successfully")
 }
 
-// Get preferred outbound ip of this machine
 func getOutboundIP(ctx context.Context) (net.IP, error) {
 	ctx, cancel := context.WithTimeout(ctx, PublicIPTTL*time.Second)
 	defer cancel()
