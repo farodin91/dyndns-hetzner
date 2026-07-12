@@ -2,17 +2,21 @@ package main
 
 import (
 	"context"
-	"errors"
 	"io"
 	"log"
 	"net"
 	"os"
+	"time"
 
+	"github.com/cruizba/publicip"
 	"github.com/hetznercloud/hcloud-go/v2/hcloud"
 	"go.yaml.in/yaml/v2"
 )
 
-const DefaultTTL = 180
+const (
+	DefaultTTL  = 180
+	PublicIPTTL = 10
+)
 
 type Config struct {
 	TTL     int      `yaml:"ttl"`
@@ -59,7 +63,7 @@ func main() {
 	ctx := context.Background()
 
 	// Get current public IP
-	publicIP, err := getOutboundIP()
+	publicIP, err := getOutboundIP(ctx)
 	if err != nil {
 		log.Fatalf("Failed to get public IP: %v", err)
 	}
@@ -163,17 +167,9 @@ func createRecord(
 }
 
 // Get preferred outbound ip of this machine
-func getOutboundIP() (*net.IP, error) {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-
-	localAddr, ok := conn.LocalAddr().(*net.UDPAddr)
-	if !ok {
-		return nil, errors.New("expect UDPAddr")
-	}
-
-	return &localAddr.IP, nil
+func getOutboundIP(ctx context.Context) (net.IP, error) {
+	ctx, cancel := context.WithTimeout(ctx, PublicIPTTL*time.Second)
+	defer cancel()
+	client := publicip.NewClient()
+	return client.Discover(ctx)
 }

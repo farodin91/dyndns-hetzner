@@ -3,6 +3,7 @@ module github.com/farodin91/dyndns-hetzner
 go 1.26.4
 
 require (
+	github.com/cruizba/publicip v1.2.1
 	github.com/hetznercloud/hcloud-go/v2 v2.44.0
 	go.yaml.in/yaml/v2 v2.4.2
 )
