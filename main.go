@@ -141,7 +141,7 @@ func updateRecord(
 	if err != nil {
 		log.Fatalf("Failed to update RRSet: %v", err)
 	}
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode >= http.StatusOK && resp.StatusCode <= http.StatusPartialContent {
 		log.Fatalf("Failed to update RRSet with Status %d", resp.StatusCode)
 	}
 	log.Println("Updated A record successfully")
@@ -168,7 +168,7 @@ func createRecord(
 	if err != nil {
 		log.Fatalf("Failed to create RRSet: %v", err)
 	}
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode >= http.StatusOK && resp.StatusCode <= http.StatusPartialContent {
 		log.Fatalf("Failed to create RRSet with Status %d", resp.StatusCode)
 	}
 	log.Println("Created A record successfully")
