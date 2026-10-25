@@ -177,6 +177,10 @@ func createRecord(
 func getOutboundIP(ctx context.Context) (net.IP, error) {
 	ctx, cancel := context.WithTimeout(ctx, PublicIPTTL*time.Second)
 	defer cancel()
-	client := publicip.NewClient()
-	return client.Discover(ctx)
+	client := publicip.New()
+	result, err := client.Discover(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return result.IP, nil
 }
