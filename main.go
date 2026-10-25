@@ -9,9 +9,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/cruizba/publicip"
+	"github.com/cruizba/publicip/v2"
 	"github.com/hetznercloud/hcloud-go/v2/hcloud"
-	"go.yaml.in/yaml/v2"
+	"go.yaml.in/yaml/v3"
 )
 
 const (
