@@ -4,6 +4,7 @@ github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UF
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/cruizba/publicip v1.2.4 h1:u9wXTJNSOIcD+XWn4I8PANrHoM8cJ+1e+RagiJe+yJo=
 github.com/cruizba/publicip v1.2.4/go.mod h1:X04w6amOSWzUYfKusXAZgODAHvoeeiW5GQq7rWVuEl4=
+github.com/cruizba/publicip/v2 v2.0.2/go.mod h1:IXMGgeNRSs1FSsWM3E2FsQ2C0lepf9hmCxn40HoTQao=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
 github.com/hetznercloud/hcloud-go/v2 v2.53.0 h1:GC8U/52bG7gTDB0pnwKrXcG0JsR5qnmVwuYnjHitcug=
