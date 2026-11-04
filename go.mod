@@ -6,6 +6,7 @@ require (
 	github.com/cruizba/publicip/v2 v2.0.2
 	github.com/hetznercloud/hcloud-go/v2 v2.53.0
 	go.yaml.in/yaml/v3 v3.0.5
+	go.yaml.in/yaml/v4 v4.0.0
 )
 
 require (
